@@ -2,9 +2,9 @@ import os
 import sys
 import csv
 
-bFile = os.path.dirname(__file__) + '\Resources\\budget_data.csv'
+eFile = os.path.dirname(__file__) + '\Resources\\election_data.csv'
 
-print(bFile)
+print(eFile)
 
 def Save_CSVData(sdata):
     oPath = f"{os.path.dirname(__file__)}/analysis"
@@ -14,33 +14,54 @@ def Save_CSVData(sdata):
         wFile.write(sdata)
 
 
-with open(bFile,'r') as bCsv:
+with open(eFile,'r') as eCsv:
 
-    dcsvreader = csv.DictReader(bCsv)
+    dcsvreader = csv.DictReader(eCsv)
 
 
     result = {}
     for row in dcsvreader:
-        for column, value in row.items():  # consider .iteritems() for Python 2
+        for column, value in row.items():  
             result.setdefault(column, []).append(value)
-    tm = len(result['Date'])
-    vals = []
-    for i in result['Profit/Losses']:
-        vals.append(int(i))
-    tl = sum(vals)
-    avgc = round(tl/tm,2)
-    vMax = max(vals)
-    dMax = result['Date'][vals.index(max(vals))]
-    vMin = min(vals)
-    dMin = result['Date'][vals.index(min(vals))]
+    tv = len(result['Voter ID'])
+    kVotes = 0
+    cVotes = 0
+    lVotes = 0
+    oVotes = 0
+    for i in result['Candidate']:
+        if i == "Khan":
+            kVotes += 1
+        elif i == "Correy":
+            cVotes += 1
+        elif i == "Li":
+            lVotes += 1
+        elif i == "O'Tooley":
+            oVotes += 1
+    winner = ""
+    
+    if kVotes > cVotes and kVotes > oVotes and kVotes > lVotes:
+        winner = "Khan"
+    elif cVotes > kVotes and cVotes > oVotes and cVotes > lVotes:
+        winner = "Correy"
+    elif lVotes > kVotes and lVotes > cVotes and lVotes > oVotes:
+        winner = "Li"
+    elif oVotes > kVotes and oVotes > cVotes and oVotes > lVotes:
+        winner = "O'Tooley"
+
+
     rsltdata = f"""
-    Financial Analysis
-    ----------------------------------------------------------------
-    Total Months: {tm}
-    Total: ${tl}
-    Average Change: ${avgc}
-    Greatest Increase in Profits: {dMax} (${vMax})
-    Greatest Decrease in Profits: {dMin} (${vMin})
+    Election Results
+    -------------------------
+    Total Votes: {tv}
+    -------------------------
+    Khan: {round(kVotes/tv * 100,2)}% ({kVotes})
+    Correy: {round(cVotes/tv * 100,2)}% ({cVotes})
+    Li: {round(lVotes/tv * 100,2)}% ({lVotes})
+    O'Tooley: {round(oVotes/tv * 100,2)}% ({oVotes})
+    -------------------------
+    Winner: {winner}
+    -------------------------
+
     """
     print(rsltdata)
     Save_CSVData(rsltdata)
